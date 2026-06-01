@@ -1,0 +1,45 @@
+# ~/.codex/config.toml  (или <repo>/.codex/config.toml)
+# Аналог permissions-блока из .claude/settings.json.
+# Codex НЕ поддерживает гранулярный deny-list bash-команд как Claude Code —
+# деструктив (rm -rf /, git push --force, DROP TABLE, …) блокируется
+# PreToolUse-хуком .codex/hooks/command-guard.py (см. hooks.json).
+
+# --- Модель и режим работы ---------------------------------------------------
+model = "gpt-5.5"                 # под свой доступ
+
+# approval_policy: untrusted | on-request | never | { granular = {...} }
+#   on-request — Codex сам решает, когда спросить (аналог разумного default).
+#   untrusted  — спрашивать на всё незнакомое (строже).
+approval_policy = "on-request"
+
+# sandbox_mode: read-only | workspace-write | danger-full-access
+sandbox_mode = "workspace-write"
+
+[sandbox_workspace_write]
+network_access = true             # нужен для REST/composer/docker pull
+writable_roots = [
+  # ПОПРАВИТЬ под свои пути:
+  "D:/Project AI/<имя-репо>",
+  # временные:
+  # "C:/Users/<user>/AppData/Local/Temp",
+]
+exclude_slash_tmp = false
+exclude_tmpdir_env_var = false
+
+# Доверенный проект — не переспрашивать на каждый запуск.
+[projects."D:/Project AI/<имя-репо>"]
+trust_level = "trusted"
+
+# --- Уведомления (аналог Notification-хука: тост/звук) -----------------------
+# Codex вызывает программу с JSON-payload при agent-turn-complete.
+notify = ["python", "D:/Project AI/<имя-репо>/.codex/hooks/notify.py"]
+
+# --- MCP-серверы (аналог mcp в settings.json) --------------------------------
+[mcp_servers.context7]
+command = "npx"
+args = ["-y", "@upstash/context7-mcp@latest"]
+enabled = true
+startup_timeout_sec = 20
+tool_timeout_sec = 120
+# [mcp_servers.context7.env]
+# CONTEXT7_API_KEY = "..."   # если требуется

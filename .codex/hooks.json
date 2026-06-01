@@ -1,0 +1,66 @@
+{
+  "_comment": "Аналог hooks-блока из .claude/settings.json. Кладётся в <repo>/.codex/hooks.json. Команды используют python; на Windows при необходимости сработает command_windows. Пути относительно корня репо через git rev-parse.",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/architecture-trigger.py\"",
+            "command_windows": "python \"%CD%\\.codex\\hooks\\architecture-trigger.py\"",
+            "statusMessage": "Проверка на архитектурный триггер",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/command-guard.py\"",
+            "command_windows": "python \"%CD%\\.codex\\hooks\\command-guard.py\"",
+            "statusMessage": "Проверка команды на деструктив",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "apply_patch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/format-after-edit.py\"",
+            "command_windows": "python \"%CD%\\.codex\\hooks\\format-after-edit.py\"",
+            "statusMessage": "Автоформат изменённых файлов",
+            "timeout": 20
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/lint-before-stop.py\"",
+            "command_windows": "python \"%CD%\\.codex\\hooks\\lint-before-stop.py\"",
+            "statusMessage": "Статанализ изменённых файлов",
+            "timeout": 90
+          },
+          {
+            "type": "command",
+            "command": "python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/test-before-stop.py\"",
+            "command_windows": "python \"%CD%\\.codex\\hooks\\test-before-stop.py\"",
+            "statusMessage": "Тесты на изменённые модули",
+            "timeout": 120
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+# Python hook artefacts
+__pycache__/
+*.pyc
+
+# Hook retry markers (создаются хуками во время работы)
+.codex/hooks/.lint-retry-count
+.codex/hooks/.phpunit-retry-count
+
+# Локальные оверрайды
+*.local.*
